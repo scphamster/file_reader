@@ -53,8 +53,8 @@ fn main() -> std::io::Result<()> {
 
             let first_digit = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
             let second_digit = captures.get(2).unwrap().as_str().parse::<u32>().unwrap();
-
-            println!("Two digits: {}, {}", first_digit, second_digit);
+            let percentage = (second_digit as f32 / first_digit as f32) * 100 as f32;
+            println!("Uploaded {} out of {}. {}%", second_digit, first_digit, percentage);
         }
 
         thread::sleep(Duration::from_millis(200));

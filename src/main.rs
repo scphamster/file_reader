@@ -6,6 +6,8 @@ use std::env;
 use std::io;
 use std::path::Path;
 use regex::Regex;
+use colored::*;
+use chrono::prelude::*;
 
 fn check() {}
 
@@ -41,20 +43,26 @@ fn main() -> std::io::Result<()> {
             let captures = pattern.captures(&line);
 
             let captures = if captures.is_none() {
+                println!("{}, Logs from file \"{}\": {}", "No data sent yet".red(), file_name, line.yellow());
+
                 continue;
             } else {
                 captures.unwrap()
             };
 
-
             if captures.len() < 3 {
                 continue;
             }
 
-            let first_digit = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
-            let second_digit = captures.get(2).unwrap().as_str().parse::<u32>().unwrap();
-            let percentage = (second_digit as f32 / first_digit as f32) * 100 as f32;
-            println!("Uploaded {} out of {}. {}%", second_digit, first_digit, percentage);
+            let pack_size = captures.get(1).unwrap().as_str().parse::<u64>().unwrap();
+            let sent_bytes_number = captures.get(2).unwrap().as_str().parse::<u64>().unwrap();
+            let pack_size_as_str = format!("{}", captures.get(1).unwrap().as_str().parse::<u64>().unwrap()).blue();
+            let sent_bytes_number_as_str = format!("{}", captures.get(2).unwrap().as_str().parse::<u64>().unwrap()).blue();
+            let percentage = format!("{:.1}", ((sent_bytes_number as f32 / pack_size as f32) * 100 as f32)).green();
+
+            let current_time = Local::now().format("%H:%M:%S").to_string();
+
+            println!("{} :: Uploaded {}kB out of {}kB. Uploaded {:.1}%", current_time, sent_bytes_number_as_str, pack_size_as_str, percentage);
         }
 
         thread::sleep(Duration::from_millis(200));

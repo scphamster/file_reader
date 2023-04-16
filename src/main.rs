@@ -7,9 +7,7 @@ use std::io;
 use std::path::Path;
 use regex::Regex;
 
-fn check() {
-
-}
+fn check() {}
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -28,24 +26,35 @@ fn main() -> std::io::Result<()> {
 
     loop {
         loop {
-
             let line = line_iterator.next();
-            if line.is_none() {
+            let line = if line.is_none() {
                 break;
+            } else {
+                let res = line.unwrap();
+                if res.is_err() {
+                    continue;
+                } else {
+                    res.unwrap()
+                }
+            };
+
+            let captures = pattern.captures(&line);
+
+            let captures = if captures.is_none() {
+                continue;
+            } else {
+                captures.unwrap()
+            };
+
+
+            if captures.len() < 3 {
+                continue;
             }
 
-            let line_string = line.unwrap().unwrap();
-            let captures = pattern.captures(&line_string);
+            let first_digit = captures.get(1).unwrap().as_str().parse::<u32>().unwrap();
+            let second_digit = captures.get(2).unwrap().as_str().parse::<u32>().unwrap();
 
-            if captures.is_none(){
-                break;
-            }
-
-            let matches = captures.unwrap();
-
-            for (index, matched) in matches.iter().enumerate() {
-                println!("{}: {}", index, matched.unwrap().as_str());
-            }
+            println!("Two digits: {}, {}", first_digit, second_digit);
         }
 
         thread::sleep(Duration::from_millis(200));
